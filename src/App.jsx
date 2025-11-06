@@ -12,7 +12,7 @@ function App() {
 	return (
 		<div className='App'>
 			{posts.map(post => (
-				<PostItem post={post} />
+				<PostItem post={post} key={post.id} />
 			))}
 		</div>
 	)
