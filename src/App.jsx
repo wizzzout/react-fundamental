@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import './App.css'
 import PostList from './components/PostList'
 import CustomButton from './components/UI/button/CustomButton'
@@ -11,16 +11,20 @@ function App() {
 		{ id: 3, title: 'React 3', content: 'Описание 3' },
 	])
 
+	const bodyInputRef = useRef()
+
 	const [title, setTitle] = useState('')
 	const [desc, setDesc] = useState('')
 	const addNewPost = e => {
 		e.preventDefault()
 		console.log(title, desc)
+		console.log(bodyInputRef.current.value)
 	}
 
 	return (
 		<div className='App'>
 			<form>
+				<input type='text' ref={bodyInputRef} />
 				<CustomInput
 					placeholder='Название поста'
 					value={title}
