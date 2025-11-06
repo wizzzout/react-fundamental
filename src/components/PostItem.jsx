@@ -1,3 +1,5 @@
+import CustomButton from './UI/button/CustomButton'
+
 export default function PostItem(props) {
 	return (
 		<div className='post'>
@@ -8,7 +10,7 @@ export default function PostItem(props) {
 				<div>{props.post.content}</div>
 			</div>
 			<div className='post__btns'>
-				<button>Удалить</button>
+				<CustomButton>Удалить</CustomButton>
 			</div>
 		</div>
 	)
