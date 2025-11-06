@@ -21,11 +21,15 @@ function App() {
 	return (
 		<div className='App'>
 			<PostAdd create={createPost} />
-			<PostList
-				remove={removePost}
-				posts={posts}
-				title='Список постов 1'
-			/>
+			{posts.length !== 0 ? (
+				<PostList
+					remove={removePost}
+					posts={posts}
+					title='Список постов 1'
+				/>
+			) : (
+				<h1 style={{ textAlign: 'center' }}>Постов нет</h1>
+			)}
 		</div>
 	)
 }
