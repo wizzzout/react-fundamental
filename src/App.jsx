@@ -11,13 +11,30 @@ function App() {
 		{ id: 3, title: 'React 3', content: 'Описание 3' },
 	])
 
+	const [title, setTitle] = useState('')
+	const [desc, setDesc] = useState('')
+	const addNewPost = e => {
+		e.preventDefault()
+		console.log(title, desc)
+	}
+
 	return (
 		<div className='App'>
-			<from>
-				<CustomInput placeholder='Название поста' type='text' />
-				<CustomInput placeholder='Описание поста' type='text' />
-				<CustomButton>Добавить пост</CustomButton>
-			</from>
+			<form>
+				<CustomInput
+					placeholder='Название поста'
+					value={title}
+					onChange={e => setTitle(e.target.value)}
+					type='text'
+				/>
+				<CustomInput
+					placeholder='Описание поста'
+					value={desc}
+					onChange={e => setDesc(e.target.value)}
+					type='text'
+				/>
+				<CustomButton onClick={addNewPost}>Добавить пост</CustomButton>
+			</form>
 			<PostList posts={posts} title='Список постов 1' />
 		</div>
 	)
