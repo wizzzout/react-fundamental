@@ -1,12 +1,10 @@
 import './App.css'
-import ClassCounter from './components/ClassCounter'
-import Counter from './components/Counter'
+import PostItem from './components/PostItem'
 
 function App() {
 	return (
 		<div className='App'>
-			<Counter />
-			<ClassCounter />
+			<PostItem post={{ id: 1, title: 'React', content: 'Описание' }} />
 		</div>
 	)
 }
