@@ -10,7 +10,9 @@ export default function PostItem(props) {
 				<div>{props.post.content}</div>
 			</div>
 			<div className='post__btns'>
-				<CustomButton>Удалить</CustomButton>
+				<CustomButton onClick={() => props.remove(props.post)}>
+					Удалить
+				</CustomButton>
 			</div>
 		</div>
 	)
