@@ -13,9 +13,12 @@ export default function PostList({ posts, title, remove }) {
 				{posts.map((post, index) => (
 					<motion.div
 						key={post.id}
-						initial={{ opacity: 0, height: 0, x: 1 }}
-						animate={{ opacity: 1, height: 'auto' }}
-						exit={{ opacity: 0, height: 0 }}
+						initial={{ transform: 'translateX(180px)', height: 0 }}
+						animate={{
+							transform: 'translateX(0)',
+							height: 'auto',
+						}}
+						exit={{ transform: 'translateX(-180px)', height: 0 }}
 						transition={{ duration: 0.3 }}
 					>
 						<PostItem
