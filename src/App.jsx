@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 import './App.css'
 import PostAdd from './components/PostAdd'
+import PostFilter from './components/PostFilter'
 import PostList from './components/PostList'
-import CustomInput from './components/UI/input/CustomInput'
-import CustomSelect from './components/UI/select/CustomSelect'
 
 function App() {
 	const [posts, setPosts] = useState([
@@ -12,23 +11,22 @@ function App() {
 		{ id: 3, title: 'CCC React 3', content: 'AAA Описание 3' },
 	])
 
-	const [selectedSort, setSelectedSort] = useState('')
-	const [searchQuery, setSearchQuery] = useState('')
+	const [filter, setFilter] = useState({ sort: '', query: '' })
 
 	const sortedPosts = useMemo(() => {
-		if (selectedSort) {
+		if (filter.sort) {
 			return [...posts].sort((a, b) =>
-				a[selectedSort].localeCompare(b[selectedSort])
+				a[filter.sort].localeCompare(b[filter.sort])
 			)
 		}
 		return posts
-	}, [selectedSort, posts])
+	}, [filter.sort, posts])
 
 	const sortedAndSearchedPosts = useMemo(() => {
 		return sortedPosts.filter(post =>
-			post.title.toLowerCase().includes(searchQuery.toLowerCase())
+			post.title.toLowerCase().includes(filter.query.toLowerCase())
 		)
-	}, [searchQuery, sortedPosts])
+	}, [filter.query, sortedPosts])
 
 	const createPost = newPost => {
 		setPosts([...posts, newPost])
@@ -38,30 +36,11 @@ function App() {
 		setPosts(posts.filter(p => p.id !== post.id))
 	}
 
-	const sortPosts = sort => {
-		setSelectedSort(sort)
-	}
-
 	return (
 		<div className='App'>
 			<PostAdd create={createPost} />
 			<hr style={{ margin: '15px 0' }} />
-			<div>
-				<CustomInput
-					placeholder='Поиск...'
-					value={searchQuery}
-					onChange={e => setSearchQuery(e.target.value)}
-				/>
-				<CustomSelect
-					value={selectedSort}
-					onChange={sortPosts}
-					defaultValue='Сортировка'
-					options={[
-						{ value: 'title', name: 'По заголовку' },
-						{ value: 'content', name: 'По контенту' },
-					]}
-				/>
-			</div>
+			<PostFilter filter={filter} setFilter={setFilter} />
 			{sortedAndSearchedPosts.length ? (
 				<PostList
 					remove={removePost}
