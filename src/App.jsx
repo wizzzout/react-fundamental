@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import './App.css'
 import PostAdd from './components/PostAdd'
 import PostList from './components/PostList'
+import CustomInput from './components/UI/input/CustomInput'
 import CustomSelect from './components/UI/select/CustomSelect'
 
 function App() {
@@ -12,10 +13,22 @@ function App() {
 	])
 
 	const [selectedSort, setSelectedSort] = useState('')
-	const sortPosts = sort => {
-		setSelectedSort(sort)
-		setPosts([...posts].sort((a, b) => a[sort].localeCompare(b[sort])))
-	}
+	const [searchQuery, setSearchQuery] = useState('')
+
+	const sortedPosts = useMemo(() => {
+		if (selectedSort) {
+			return [...posts].sort((a, b) =>
+				a[selectedSort].localeCompare(b[selectedSort])
+			)
+		}
+		return posts
+	}, [selectedSort, posts])
+
+	const sortedAndSearchedPosts = useMemo(() => {
+		return sortedPosts.filter(post =>
+			post.title.toLowerCase().includes(searchQuery.toLowerCase())
+		)
+	}, [searchQuery, sortedPosts])
 
 	const createPost = newPost => {
 		setPosts([...posts, newPost])
@@ -25,11 +38,20 @@ function App() {
 		setPosts(posts.filter(p => p.id !== post.id))
 	}
 
+	const sortPosts = sort => {
+		setSelectedSort(sort)
+	}
+
 	return (
 		<div className='App'>
 			<PostAdd create={createPost} />
 			<hr style={{ margin: '15px 0' }} />
 			<div>
+				<CustomInput
+					placeholder='Поиск...'
+					value={searchQuery}
+					onChange={e => setSearchQuery(e.target.value)}
+				/>
 				<CustomSelect
 					value={selectedSort}
 					onChange={sortPosts}
@@ -40,10 +62,10 @@ function App() {
 					]}
 				/>
 			</div>
-			{posts.length ? (
+			{sortedAndSearchedPosts.length ? (
 				<PostList
 					remove={removePost}
-					posts={posts}
+					posts={sortedAndSearchedPosts}
 					title='Список постов 1'
 				/>
 			) : (
