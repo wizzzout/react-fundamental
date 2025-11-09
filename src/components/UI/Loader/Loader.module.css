@@ -1,0 +1,19 @@
+.loader {
+	width: 4rem;
+	height: 4rem;
+	border-radius: 50%;
+	border: 2px dotted grey;
+	animation: pulse 0.3s infinite linear;
+}
+
+@keyframes pulse {
+	from {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(0.7);
+	}
+	to {
+		transform: scale(1.2);
+	}
+}
