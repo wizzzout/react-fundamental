@@ -7,24 +7,30 @@ import PostList from './components/PostList'
 import CustomButton from './components/UI/button/CustomButton'
 import Loader from './components/UI/Loader/Loader'
 import Modal from './components/UI/modal/Modal'
+import Pagination from './components/UI/Pagination/Pagination'
 import { useFetching } from './hooks/useFetching'
 import { usePosts } from './hooks/usePosts'
+import { getPageCount } from './utils/pages'
 
 function App() {
 	const [posts, setPosts] = useState([])
 	const [filter, setFilter] = useState({ sort: '', query: '' })
 	const [modal, setModal] = useState(false)
 
-	const [totalCount, setTotalCount] = useState(0)
+	const [totalPages, setTotalPages] = useState(0)
 	const [limit, setLimit] = useState(10)
-	const [page, setPage] = useState(2)
+	const [page, setPage] = useState(1)
+
+	const changePage = page => {
+		setPage(page)
+	}
 
 	const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
 	const [fetchPosts, isPostsLoading, postError] = useFetching(async () => {
 		const response = await PostService.getAll(limit, page)
 		setPosts(response.data)
-		console.log(response.headers['x-total-count'])
-		setTotalCount(response.headers['x-total-count'])
+		const totalCount = response.headers['x-total-count']
+		setTotalPages(getPageCount(totalCount, limit))
 	})
 
 	const createPost = newPost => {
@@ -34,7 +40,7 @@ function App() {
 
 	useEffect(() => {
 		fetchPosts()
-	}, [])
+	}, [page])
 
 	const removePost = post => {
 		setPosts(posts.filter(p => p.id !== post.id))
@@ -60,9 +66,15 @@ function App() {
 				<PostList
 					remove={removePost}
 					posts={sortedAndSearchedPosts}
-					title='Список постов 1'
+					title='Список постов'
 				/>
 			)}
+
+			<Pagination
+				totalPages={totalPages}
+				page={page}
+				changePage={changePage}
+			/>
 		</div>
 	)
 }
