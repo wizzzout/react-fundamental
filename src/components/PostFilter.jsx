@@ -17,7 +17,7 @@ export default function PostFilter({ filter, setFilter }) {
 				defaultValue='Сортировка'
 				options={[
 					{ value: 'title', name: 'По заголовку' },
-					{ value: 'content', name: 'По контенту' },
+					{ value: 'body', name: 'По контенту' },
 				]}
 			/>
 		</div>
