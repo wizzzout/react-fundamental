@@ -1,16 +1,80 @@
-# React + Vite
+# План доработок React Fundamental
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Документ служит дорожной картой: после каждого раунда изменений отмечаем, что сделано, и уточняем следующие шаги.
 
-Currently, two official plugins are available:
+## 1. Текущее состояние (после урока)
+- Добавлены: бесконечная прокрутка через `useObserver`, выбор лимита постов, базовый вывод ошибок (`postError`), новый `CustomSelect`.
+- По‑прежнему открыты баги: `logout` не вызывается, `AppRouter` не возвращает `Loader`, обработка ошибок в UI минимальна (строка `${postError}` не интерполируется).
+- Infinite scroll и пагинация существуют одновременно — требуется стратегическое решение (оставить обе или выбрать одну).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 2. Цели и KPI
+- Стабильность: исправить критические баги навигации/авторизации, довести обработку ошибок до production-ready.
+- UX: улучшить формы, адаптивность и доступность, синхронизировать infinite scroll и пагинацию.
+- Презентация: README/портфолио-файлы, деплой + скриншоты.
+- Качество: типы, тесты, единые сервисы и хуки.
 
-## React Compiler
+## 3. Этап 1 — Быстрые багфиксы и консистентность (0.5–1 дня)
+### 3.1 Карта багов и ход решения
+| Баг | Симптомы | Причина | План исправления |
+| --- | --- | --- | --- |
+| Кнопка `Logout` не работает | Нажатие не меняет состояние авторизации | В `onClick` передаётся ссылка `logout;` без вызова | 1) Заменить на `onClick={logout}`.<br>2) После `setIsAuth(false)` делать `navigate('/login')` и показывать обратную связь пользователю. |
+| Нет отображения `Loader` при старте | После refresh экран может оставаться пустым до монтирования роутов | В блоке `if (authLoading)` нет `return` | 1) Вернуть `<Loader />` и добавить `fallback` в `App` на случай ошибки контекста.<br>2) Покрыть тестом, что `Loader` рендерится при `authLoading=true`. |
+| Ошибка API отображается как `${postError}` | Пользователь видит строку с шаблонной переменной | Используются одинарные кавычки вместо template literal | 1) Использовать бэктики или компонент `ErrorState` с `postError`.<br>2) Добавить кнопку Retry, которая перезапускает `fetchPosts`. |
+| Ошибки на `PostIdPage` не видны | При падении запросов страница молчит | `postError`/`commentsError` не выводятся | 1) Отрисовать ошибки рядом с `Loader` + retry.<br>2) Логи в консоль заменить на структурированный репорт. |
+| Пагинация конфликтует с infinite scroll | Пользователь видит и авто-добавление, и ручные страницы; дублируются записи | Логика `setPosts([...posts, ...response.data])` всегда дополняет массив | 1) Принять стратегию (только scroll или пагинация).<br>2) При смене режима сбрасывать `posts`, `page`, `lastElement`. |
+| Смена `limit` не очищает данные | При выборе другого лимита данные удваиваются | Нет сброса `posts/page` при `setLimit` | 1) В обработчике `setLimit` делать `setPosts([]); setPage(1)`.<br>2) В `useEffect` следить за «жизненным циклом» запросов и отменять предыдущие. |
+| `useObserver` без проверки ref | Возможен runtime error, если ref ещё не прикреплён | `observer.observe(ref.current)` вызывается без guard | Добавить `if (!ref.current) return;` и очищать наблюдатель в `return () => observer.current?.disconnect()`. |
+| `limit = -1` отправляется в API | JSONPlaceholder получает `_limit=-1`, что некорректно | Отсутствует условие для «All posts» | При выборе `-1` не передавать `_limit`, а в UI только скрывать пагинацию. |
+| Нет обработки ошибок `localStorage` | При ошибках доступа приложение зависает в `authLoading` | Чтение `localStorage` без `try/catch` | Обернуть чтение и в случае ошибки сбрасывать `auth` + логировать. |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Auth flow**
+   - Исправить вызов `logout()` и добавить redirect на `/login`.
+   - В `AppRouter` вернуть `<Loader />` при `authLoading`; при ошибке контекста показывать fallback.
+2. **API ошибки**
+   - Исправить строку `${postError}` и выводить понятное сообщение + кнопку Retry.
+   - В `PostIdPage` так же отрисовывать `postError`/`commentsError`.
+3. **Infinite scroll vs pagination**
+   - Определить стратегию: либо оставить обе (обновить UX и синхронизацию страниц), либо выбрать одну.
+   - При выборе infinite scroll — убрать `Pagination`, сбрасывать `posts` при смене `limit`/`sort`.
+4. **Сброс состояния**
+   - При `setLimit` и `setFilter` корректно сбрасывать `page` и `posts`, чтобы не дублировать данные.
 
-## Expanding the ESLint configuration
+## 4. Этап 2 — UX, доступность и визуал (1–2 дня)
+1. **Формы и модалка**
+   - Валидация `PostAdd` и `Login`, дизейбл кнопок, подсказки об ошибках.
+   - `Modal`: trap focus, закрытие по Esc, aria-атрибуты.
+2. **Состояния и загрузка**
+   - Skeleton для карточек при загрузке, пустые состояния с CTA.
+   - Обозначение активного лимита и прогресса при infinite scroll.
+3. **Стили и адаптивность**
+   - Перевести стили на дизайн-токены, добавить mobile layout, улучшить навигацию (бургер/иконки).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 5. Этап 3 — Архитектура и качество (2–3 дня)
+1. **TypeScript**
+   - Миграция `API`, `hooks`, `context`, затем компонентов. Общие типы сущностей.
+2. **State management**
+   - Расширить `AuthContext` (user info, статус). Рассмотреть Zustand/Redux для постов/фильтров.
+3. **Тесты**
+   - Настроить Jest + RTL. Покрыть `useFetching`, `useObserver`, `PostList`, `AppRouter`.
+4. **Инфраструктура**
+   - Единый модуль логирования ошибок API, env-конфиги, подготовка к Sentry (по возможности).
+
+## 6. Этап 4 — Портфолио-готовность (1 день)
+1. **Документация**
+   - Обновить README/`PORTFOLIO_ANALYSIS.md`: стек, фичи, инструкции, планы.
+   - Добавить `CHANGELOG` или секцию «Progress log».
+2. **Деплой и медиа**
+   - Netlify/Vercel деплой, ссылки в README.
+   - Скриншоты + gif (список постов, модалка, infinite scroll).
+3. **Storytelling**
+   - Подготовить кейс: исходная проблема → решения → результат, показать ключевые улучшения.
+
+## 7. Дополнительные идеи (бэклог)
+- CRUD-редактирование постов.
+- Темная тема и сохранение пользовательских настроек.
+- Сохранение фильтров/страницы в URL.
+- Интеграция с реальным backend или mock server.
+
+---
+После каждого этапа фиксируем: что сделано, какие выводы, что блокирует следующий шаг. Это ускорит ревью и облегчит повторную презентацию проекта.
+
