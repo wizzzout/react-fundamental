@@ -16,7 +16,7 @@ export default function Navbar() {
 			{isAuth ? (
 				<CustomButton
 					onClick={() => {
-						logout;
+						logout();
 					}}
 				>
 					Logout
