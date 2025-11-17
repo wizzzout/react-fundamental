@@ -1,9 +1,9 @@
-import { AnimatePresence, motion } from 'motion/react'
-import PostItem from './PostItem'
+import { AnimatePresence, motion } from 'motion/react';
+import PostItem from './PostItem';
 
 export default function PostList({ posts, title, remove }) {
 	if (!posts.length) {
-		return <h1 style={{ textAlign: 'center' }}>Постов нет</h1>
+		return <h1 style={{ textAlign: 'center' }}>Постов нет</h1>;
 	}
 
 	return (
@@ -21,14 +21,10 @@ export default function PostList({ posts, title, remove }) {
 						exit={{ transform: 'translateX(-180px)', height: 0 }}
 						transition={{ duration: 0.3 }}
 					>
-						<PostItem
-							remove={remove}
-							number={index + 1}
-							post={post}
-						/>
+						<PostItem remove={remove} number={index + 1} post={post} />
 					</motion.div>
 				))}
 			</AnimatePresence>
 		</>
-	)
+	);
 }
