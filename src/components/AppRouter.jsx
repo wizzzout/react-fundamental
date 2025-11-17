@@ -1,16 +1,17 @@
 import { Route, Routes } from 'react-router'
 import PageNotFound from '../pages/404'
-import About from '../pages/About'
-import PostIdPage from '../pages/PostIdPage'
-import Posts from '../pages/Posts'
+import { routes } from '../router'
 
 export default function AppRouter() {
 	return (
 		<Routes>
-			<Route path='/' element={<About />} />
-			<Route path='/about' element={<About />} />
-			<Route path='/posts' element={<Posts />} />
-			<Route path='/posts/:id' element={<PostIdPage />} />
+			{routes.map(route => (
+				<Route
+					key={route.path}
+					path={route.path}
+					element={route.component}
+				/>
+			))}
 			<Route path='*' element={<PageNotFound />} />
 		</Routes>
 	)
