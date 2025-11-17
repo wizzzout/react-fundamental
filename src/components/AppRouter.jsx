@@ -4,9 +4,14 @@ import { AuthContext } from '../context';
 import PageNotFound from '../pages/404';
 import Login from '../pages/Login';
 import { privateRoutes, publicRoutes } from '../router';
+import Loader from './UI/Loader/Loader';
 
 export default function AppRouter() {
-	const { isAuth, setIsAuth } = useContext(AuthContext);
+	const { isAuth, authLoading } = useContext(AuthContext);
+
+	if (authLoading) {
+		<Loader />;
+	}
 
 	return isAuth ? (
 		<Routes>

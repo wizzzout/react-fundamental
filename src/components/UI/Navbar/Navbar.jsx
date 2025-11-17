@@ -6,15 +6,20 @@ import CustomButton from '../button/CustomButton';
 export default function Navbar() {
 	const { isAuth, setIsAuth } = useContext(AuthContext);
 
+	const logout = () => {
+		setIsAuth(false);
+		localStorage.removeItem('auth');
+	};
+
 	return (
 		<div className='navbar'>
 			{isAuth ? (
 				<CustomButton
 					onClick={() => {
-						setIsAuth(false);
+						logout;
 					}}
 				>
-					Login
+					Logout
 				</CustomButton>
 			) : (
 				<div>Guest</div>
