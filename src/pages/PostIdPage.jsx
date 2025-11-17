@@ -1,31 +1,29 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router'
-import PostService from '../API/PostService'
-import Loader from '../components/UI/Loader/Loader'
-import { useFetching } from '../hooks/useFetching'
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
+import PostService from '../API/PostService';
+import Loader from '../components/UI/Loader/Loader';
+import { useFetching } from '../hooks/useFetching';
 
 export default function PostIdPage() {
-	const params = useParams()
-	const [post, setPost] = useState({})
-	const [comments, setComments] = useState([])
+	const params = useParams();
+	const [post, setPost] = useState({});
+	const [comments, setComments] = useState([]);
 
 	const [fetchPostById, postLoading, postError] = useFetching(async id => {
-		const response = await PostService.getById(id)
-		setPost(response.data)
-	})
+		const response = await PostService.getById(id);
+		setPost(response.data);
+	});
 
-	const [fetchCommentsById, commentsLoading, commentsError] = useFetching(
-		async id => {
-			const response = await PostService.getCommentsById(id)
-			setComments(response.data)
-			console.log(response.data)
-		}
-	)
+	const [fetchCommentsById, commentsLoading, commentsError] = useFetching(async id => {
+		const response = await PostService.getCommentsById(id);
+		setComments(response.data);
+		console.log(response.data);
+	});
 
 	useEffect(() => {
-		fetchPostById(params.id)
-		fetchCommentsById(params.id)
-	}, [])
+		fetchPostById(params.id);
+		fetchCommentsById(params.id);
+	}, []);
 
 	return (
 		<div>
@@ -50,5 +48,5 @@ export default function PostIdPage() {
 				))
 			)}
 		</div>
-	)
+	);
 }
